@@ -142,7 +142,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     static TCHAR result[256] = { 0 };
     const TCHAR defaultResult[256] = { 0 };
     static const TCHAR emptyResult[256] = _T("");
-    static HWND pres_input, temp_input, volume_input, output_textbox, add_point, remove_point, points, steps, total, efficiency, carnotEfficiency;
+    static HWND pres_input, temp_input, volume_input, output_textbox, add_point, remove_point, points, steps, total, efficiency, carnotEfficiency, 
+        pres_input_a, temp_input_a, volume_input_a, pres_output_a, temp_output_a, volume_output_a;
     static double p = 0, t = 0, a = 0;
     static std::wstring output;
     static std::wostringstream oss;
@@ -267,6 +268,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         total = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_READONLY, 700, 250, 350, 30, hWnd, (HMENU)2, hInst, NULL);
         efficiency = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_READONLY, 325, 250, 300, 30, hWnd, (HMENU)2, hInst, NULL);
         carnotEfficiency = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_READONLY, 325, 330, 300, 30, hWnd, (HMENU)2, hInst, NULL);
+
+        pres_input_a = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 720, 365, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT2, hInst, NULL);
+        temp_input_a = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 720, 415, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT2, hInst, NULL);
+        volume_input_a = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 720, 465, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT2, hInst, NULL);
+        pres_output_a = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 895, 365, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT_PRES, hInst, NULL);
+        temp_output_a = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 895, 415, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT_TEMP, hInst, NULL);
+        volume_output_a = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 895, 465, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT_VOL, hInst, NULL);
 
         break;
 
@@ -397,8 +405,26 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             TextOut(hdc, 35, 80, _T("Temperature:"), (int)_tcslen(_T("Temperature:")));
             TextOut(hdc, 35, 110, _T("Specific Volume:"), (int)_tcslen(_T("Specific Volume:")));
 
+            hFont = CreateFont(22, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+                DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+                CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
+                DEFAULT_PITCH | FF_SWISS, _T("Arial"));
+            hOldFont = (HFONT)SelectObject(hdc, hFont);
             TextOut(hdc, 710, 315, _T("Initial:"), (int)_tcslen(_T("Initial:")));
             TextOut(hdc, 885, 315, _T("Final:"), (int)_tcslen(_T("Final:")));
+
+            hFont = CreateFont(18, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+                DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+                CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
+                DEFAULT_PITCH | FF_SWISS, _T("Arial"));
+            hOldFont = (HFONT)SelectObject(hdc, hFont);
+            TextOut(hdc, 715, 345, _T("Pressure:"), (int)_tcslen(_T("Pressure:")));
+            TextOut(hdc, 715, 395, _T("Temperature:"), (int)_tcslen(_T("Temperature:")));
+            TextOut(hdc, 715, 445, _T("Specific Volume:"), (int)_tcslen(_T("Specific Volume:")));
+            TextOut(hdc, 890, 345, _T("Pressure:"), (int)_tcslen(_T("Pressure:")));
+            TextOut(hdc, 890, 395, _T("Temperature:"), (int)_tcslen(_T("Temperature:")));
+            TextOut(hdc, 890, 445, _T("Specific Volume:"), (int)_tcslen(_T("Specific Volume:")));
+
             POINT divider[2];
             divider[0].x = 875;
             divider[0].y = 315;

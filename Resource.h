@@ -18,6 +18,10 @@
 #define ID_BUTTON1			1002
 #define ID_BUTTON2			1003
 #define IDC_TEXT_INPUT		1001
+#define IDC_TEXT_INPUT2		1004
+#define IDC_TEXT_INPUT_PRES		1005
+#define IDC_TEXT_INPUT_TEMP		1006
+#define IDC_TEXT_INPUT_VOL		1007
 
 #endif
 // Next default values for new objects
