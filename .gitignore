@@ -32,5 +32,4 @@
 /.vs
 
 # Debug Files
-/x64/Debug
-/x64/Release/*.tlog
+/x64
