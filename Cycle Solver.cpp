@@ -385,6 +385,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             TextOut(hdc, 325, 210, _T("Efficiency:"), (int)_tcslen(_T("Efficiency:")));
             TextOut(hdc, 700, 210, _T("Total:"), (int)_tcslen(_T("Total:")));
             TextOut(hdc, 325, 290, _T("Carnot Efficiency:"), (int)_tcslen(_T("Carnot Efficiency:")));
+            TextOut(hdc, 700, 290, _T("Adiabatic Solver:"), (int)_tcslen(_T("Adiabatic Solver:")));
 
 
             hFont = CreateFont(18, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
@@ -396,9 +397,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             TextOut(hdc, 35, 80, _T("Temperature:"), (int)_tcslen(_T("Temperature:")));
             TextOut(hdc, 35, 110, _T("Specific Volume:"), (int)_tcslen(_T("Specific Volume:")));
 
+            TextOut(hdc, 710, 315, _T("Initial:"), (int)_tcslen(_T("Initial:")));
+            TextOut(hdc, 885, 315, _T("Final:"), (int)_tcslen(_T("Final:")));
+            POINT divider[2];
+            divider[0].x = 875;
+            divider[0].y = 315;
+            divider[1].x = 875;
+            divider[1].y = 500;
+            Polyline(hdc, divider, 2);
+
+            // Graphing
             int xVmax = 270;
             int xVmin = 40;
-            int yVmin = 510;
+            int yVmin = 500;
             int yVmax = 260;
 
             POINT axis[3];
