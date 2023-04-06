@@ -139,8 +139,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static TCHAR result[256] = { 0 };
-    const TCHAR defaultResult[256] = { 0 };
+    static TCHAR result[128] = { 0 };
+    const TCHAR defaultResult[10] = { 0 };
     static const TCHAR emptyResult[10] = _T("");
     static HWND pres_input, temp_input, volume_input, output_textbox, add_point, remove_point, points, steps, total, efficiency, carnotEfficiency, 
         pres_input_a, temp_input_a, volume_input_a, pres_input_a_f, temp_input_a_f, volume_input_a_f, adiabatic_f, add_point_a, add_point_a_f;
@@ -297,20 +297,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 switch (HIWORD(wParam))
                 {
                     case EN_CHANGE:
-                        TCHAR pres[256];
-                        TCHAR temp[256];
-                        TCHAR volume[256];
+                        TCHAR pres[50];
+                        TCHAR temp[50];
+                        TCHAR volume[50];
 
-                        GetWindowText(pres_input, pres, 256);
-                        GetWindowText(temp_input, temp, 256);
-                        GetWindowText(volume_input, volume, 256);
+                        GetWindowText(pres_input, pres, 50);
+                        GetWindowText(temp_input, temp, 50);
+                        GetWindowText(volume_input, volume, 50);
                         SetWindowText(output_textbox, defaultResult);
                         if (_tcslen(pres) <= 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
                             t = std::stod(temp);
                             a = std::stod(volume);
 
                             p = Rd * t / a;
-                            _stprintf_s(result, 256, _T("Pressure: %f"), p);
+                            _stprintf_s(result, 128, _T("Pressure: %f"), p);
 
                             SetWindowText(output_textbox, result);
                             break;
@@ -319,7 +319,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                             a = std::stod(volume);
 
                             t = p * a / Rd;
-                            _stprintf_s(result, 256, _T("Temperature: %f"), t);
+                            _stprintf_s(result, 128, _T("Temperature: %f"), t);
                             SetWindowText(output_textbox, result);
                             break;
                         } else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) <= 0) {
@@ -327,7 +327,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                             p = std::stod(pres);
 
                             a = Rd * t / p;
-                            _stprintf_s(result, 256, _T("Specific Volume: %f"), a);
+                            _stprintf_s(result, 128, _T("Specific Volume: %f"), a);
                             SetWindowText(output_textbox, result);
                             break;
                         } else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
@@ -336,7 +336,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                             t = std::stod(temp);
 
                             bool valid = round(p * a) == round(Rd * t);
-                            _stprintf_s(result, 256, _T("Valid: %d"), valid);
+                            _stprintf_s(result, 128, _T("Valid: %d"), valid);
                             SetWindowText(output_textbox, result);
                             break;
                         }
@@ -393,18 +393,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 UpdateWindow(hWnd);
                 break;
             case IDC_TEXT_INPUT2:
-                TCHAR pres[256];
-                TCHAR temp[256];
-                TCHAR volume[256];
-                GetWindowText(pres_input_a, pres, 256);
-                GetWindowText(temp_input_a, temp, 256);
-                GetWindowText(volume_input_a, volume, 256);
+                TCHAR pres[50];
+                TCHAR temp[50];
+                TCHAR volume[50];
+                GetWindowText(pres_input_a, pres, 50);
+                GetWindowText(temp_input_a, temp, 50);
+                GetWindowText(volume_input_a, volume, 50);
                 if (_tcslen(pres) <= 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
                     t_a = std::stod(temp);
                     a_a = std::stod(volume);
 
                     p_a = Rd * t_a / a_a;
-                    _stprintf_s(result, 256, _T("%f"), p_a);
+                    _stprintf_s(result, 50, _T("%f"), p_a);
                     break;
                 }
                 else if (_tcslen(pres) > 0 && _tcslen(temp) <= 0 && _tcslen(volume) > 0) {
@@ -412,7 +412,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     a_a = std::stod(volume);
 
                     t_a = p_a * a_a / Rd;
-                    _stprintf_s(result, 256, _T("%f"), t_a);
+                    _stprintf_s(result, 50, _T("%f"), t_a);
                     break;
                 }
                 else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) <= 0) {
@@ -420,7 +420,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     p_a = std::stod(pres);
 
                     a_a = Rd * t_a / p_a;
-                    _stprintf_s(result, 256, _T("%f"), a_a);
+                    _stprintf_s(result, 50, _T("%f"), a_a);
                     break;
                 } else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
                     try {
@@ -453,7 +453,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                     t_a_f = t_a * pow(p_a_f / p_a, 1 - (1 / gamma));
                     a_a_f = a_a * pow(p_a_f / p_a, -1 / gamma);
                     output.clear();
-                    TCHAR adiabaticResult[2048];
+                    TCHAR adiabaticResult[256];
                     oss << L"P=" << p_a_f << L" T=" << t_a_f << L" A=" << a_a_f;
                     output += oss.str();
                     oss.str(L"");
