@@ -664,20 +664,52 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 double xMulti = xSize / (xMax - xMin);
                 double yMulti = ySize / (yMax - yMin);
 
-                const int length = (int) ps.size();
+                int specSteps = 0;
+                for (int i = 0;i < ps.size();i++) {
+                    if (ts[i] == ts[(i + 1) % ps.size()] || round(ps[i] * pow(as[i], gamma)) == round(ps[(i + 1) % ps.size()] * pow(as[(i + 1) % ps.size()], gamma))) {
+                        specSteps++;
+                    }
+                }
+
+
+                int interp = 50;
+                const int length = (int)ps.size() + specSteps * interp;
                 POINT* points = new POINT[length];
+                int c = 0;
                 for (int i = 0;i < length;i++) {
                     if (xMax == xMin) {
                         points[i].x = (LONG)(xVmin + (xSize / 2));
-                    }
-                    else {
-                        points[i].x = (LONG)(xVmin + (as[i] - xMin) * xMulti);
+                    } else if (ts[c] == ts[(c + 1) % ps.size()]) {
+                        double xDiff = (as[(c + 1) % ps.size()] - as[c]) / (interp + 1);
+                        for (int j = 0;j < (interp + 1);j++) {
+                            points[i+j].x = (LONG)(xVmin + ((as[c] + j * xDiff) - xMin) * xMulti);
+                        }
+                    } else if (round(ps[c] * pow(as[c], gamma)) == round(ps[(c + 1) % ps.size()] * pow(as[(c + 1) % ps.size()], gamma))) {
+                        double xDiff = (as[(c + 1) % ps.size()] - as[c]) / (interp + 1);
+                        for (int j = 0;j < (interp + 1);j++) {
+                            points[i + j].x = (LONG)(xVmin + ((as[c] + j * xDiff) - xMin) * xMulti);
+                        }
+                    } else {
+                        points[i].x = (LONG)(xVmin + (as[c] - xMin) * xMulti);
                     }
                     if (yMax == yMin) {
                         points[i].y = (LONG) (yVmin + (ySize / 2));
+                    } else if (ts[c] == ts[(c + 1) % ps.size()]) {
+                        double xDiff = (as[(c + 1) % ps.size()] - as[c]) / (interp + 1);
+                        for (int j = 0;j < (interp + 1);j++) {
+                            points[i + j].y = (LONG)(yVmin + ((ts[c] * Rd / (as[c] + j * xDiff)) - yMin) * yMulti);
+                        }
+                        i += interp;
+                    } else if (round(ps[c] * pow(as[c], gamma)) == round(ps[(c + 1) % ps.size()] * pow(as[(c + 1) % ps.size()], gamma))) {
+                        double xDiff = (as[(c + 1) % ps.size()] - as[c]) / (interp + 1);
+                        for (int j = 0;j < (interp + 1);j++) {
+                            points[i + j].y = (LONG)(yVmin + ((ps[c] * pow(as[c] / (as[c] + j * xDiff), gamma)) - yMin) * yMulti);
+                        }
+                        i += interp;
                     } else {
-                        points[i].y = (LONG) (yVmin + (ps[i] - yMin) * yMulti);
+                        points[i].y = (LONG) (yVmin + (ps[c] - yMin) * yMulti);
                     }
+                    c++;
                 }
                 SelectObject(hdc, brush);
                 Polygon(hdc, points, length);
@@ -686,7 +718,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 delete[] points;
             }
             DeleteObject(hFont);
-
 
             EndPaint(hWnd, &ps2);
         }
@@ -723,7 +754,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 bool isFloat(TCHAR* st) {
     try {
-        std::stod(st);
+        double f = std::stod(st);
         return true;
     } catch (std::invalid_argument e) {
         return false;
