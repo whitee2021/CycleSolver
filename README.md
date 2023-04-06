@@ -4,9 +4,8 @@ Cycle Solver provides an easy-to-use GUI for using the Ideal Gas Law for dry air
 
 ## Bugs/Known Issues
 * Plotting isothermal and adiabatic processes shows straight lines
-* Input fields allow non-numeric inputs
 
 ## Future Updates
+* Automatically clearing non-numeric inputs from input fields
 * Updating plotting for isothermal and adiabatic processes
-* Restricting inputs to numeric inputs
 * Adding moist air Ideal Gas Law and moist processes to cycles
