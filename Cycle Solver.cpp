@@ -202,11 +202,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 dU.push_back(Cv * (ts[i1] - ts[i]));
             }
             else {
-                MessageBox(hWnd, _T("Please add an intermediate step."), _T("Message"), MB_OK);
                 type = "Unknown\0";
-                w.push_back(0);
-                q.push_back(0);
-                dU.push_back(0);
+                w.push_back((ps[i]+ps[i1])/2*(as[i1]-as[i]));
+                q.push_back(Cv * (ts[i1] - ts[i]) + (ps[i] + ps[i1]) / 2 * (as[i1] - as[i]));
+                dU.push_back(Cv * (ts[i1] - ts[i]));
             }
         }
 
