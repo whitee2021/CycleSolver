@@ -17,6 +17,8 @@
 #define IDC_STATIC				-1
 #define ID_BUTTON1			1002
 #define ID_BUTTON2			1003
+#define ID_BUTTON3			1008
+#define ID_BUTTON4			1009
 #define IDC_TEXT_INPUT		1001
 #define IDC_TEXT_INPUT2		1004
 #define IDC_TEXT_INPUT_PRES		1005
