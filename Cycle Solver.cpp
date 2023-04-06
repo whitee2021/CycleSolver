@@ -139,11 +139,12 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-    static TCHAR result[256] = { 0 };
-    const TCHAR defaultResult[256] = { 0 };
-    static const TCHAR emptyResult[256] = _T("");
-    static HWND pres_input, temp_input, volume_input, output_textbox, add_point, remove_point, points, steps, total, efficiency, carnotEfficiency;
-    static double p = 0, t = 0, a = 0;
+    static TCHAR result[128] = { 0 };
+    const TCHAR defaultResult[10] = { 0 };
+    static const TCHAR emptyResult[10] = _T("");
+    static HWND pres_input, temp_input, volume_input, output_textbox, add_point, remove_point, points, steps, total, efficiency, carnotEfficiency, 
+        pres_input_a, temp_input_a, volume_input_a, pres_input_a_f, temp_input_a_f, volume_input_a_f, adiabatic_f, add_point_a, add_point_a_f;
+    static double p = 0, t = 0, a = 0, p_a = 0, t_a = 0, a_a = 0, p_a_f = 0, t_a_f = 0, a_a_f = 0;
     static std::wstring output;
     static std::wostringstream oss;
     
@@ -268,6 +269,16 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         efficiency = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_READONLY, 325, 250, 300, 30, hWnd, (HMENU)2, hInst, NULL);
         carnotEfficiency = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_READONLY, 325, 330, 300, 30, hWnd, (HMENU)2, hInst, NULL);
 
+        pres_input_a = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 720, 375, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT2, hInst, NULL);
+        temp_input_a = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 720, 415, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT2, hInst, NULL);
+        volume_input_a = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 720, 455, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT2, hInst, NULL);
+        pres_input_a_f = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 895, 375, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT_PRES, hInst, NULL);
+        temp_input_a_f = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 895, 415, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT_TEMP, hInst, NULL);
+        volume_input_a_f = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL, 895, 455, 140, 20, hWnd, (HMENU)IDC_TEXT_INPUT_VOL, hInst, NULL);
+        adiabatic_f = CreateWindowEx(WS_EX_CLIENTEDGE, _T("EDIT"), _T(""), WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_READONLY, 720, 490, 315, 20, hWnd, (HMENU)2, hInst, NULL);
+        add_point_a = CreateWindowEx(WS_EX_CLIENTEDGE, _T("BUTTON"), _T("Add To Cycle"), BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE, 760, 325, 100, 22, hWnd, (HMENU)ID_BUTTON4, hInst, NULL);
+        add_point_a_f = CreateWindowEx(WS_EX_CLIENTEDGE, _T("BUTTON"), _T("Add To Cycle"), BS_PUSHBUTTON | WS_CHILD | WS_VISIBLE, 935, 325, 100, 22, hWnd, (HMENU)ID_BUTTON3, hInst, NULL);
+
         break;
 
     case WM_COMMAND:
@@ -286,51 +297,46 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 switch (HIWORD(wParam))
                 {
                     case EN_CHANGE:
-                        TCHAR pres[256];
-                        TCHAR temp[256];
-                        TCHAR volume[256];
+                        TCHAR pres[50];
+                        TCHAR temp[50];
+                        TCHAR volume[50];
 
-                        GetWindowText(pres_input, pres, 256);
-                        GetWindowText(temp_input, temp, 256);
-                        GetWindowText(volume_input, volume, 256);
-
+                        GetWindowText(pres_input, pres, 50);
+                        GetWindowText(temp_input, temp, 50);
+                        GetWindowText(volume_input, volume, 50);
+                        SetWindowText(output_textbox, defaultResult);
                         if (_tcslen(pres) <= 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
-                            SetWindowText(output_textbox, defaultResult);
                             t = std::stod(temp);
                             a = std::stod(volume);
 
                             p = Rd * t / a;
-                            _stprintf_s(result, 256, _T("Pressure: %f"), p);
+                            _stprintf_s(result, 128, _T("Pressure: %f"), p);
 
                             SetWindowText(output_textbox, result);
                             break;
                         } else if (_tcslen(pres) > 0 && _tcslen(temp) <= 0 && _tcslen(volume) > 0) {
-                            SetWindowText(output_textbox, defaultResult);
                             p = std::stod(pres);
                             a = std::stod(volume);
 
                             t = p * a / Rd;
-                            _stprintf_s(result, 256, _T("Temperature: %f"), t);
+                            _stprintf_s(result, 128, _T("Temperature: %f"), t);
                             SetWindowText(output_textbox, result);
                             break;
                         } else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) <= 0) {
-                            SetWindowText(output_textbox, defaultResult);
                             t = std::stod(temp);
                             p = std::stod(pres);
 
                             a = Rd * t / p;
-                            _stprintf_s(result, 256, _T("Specific Volume: %f"), a);
+                            _stprintf_s(result, 128, _T("Specific Volume: %f"), a);
                             SetWindowText(output_textbox, result);
                             break;
-                        }
-                        else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
-                            SetWindowText(output_textbox, defaultResult);
+                        } else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
                             p = std::stod(pres);
                             a = std::stod(volume);
                             t = std::stod(temp);
 
                             bool valid = round(p * a) == round(Rd * t);
-                            _stprintf_s(result, 256, _T("Valid: %d"), valid);
+                            _stprintf_s(result, 128, _T("Valid: %d"), valid);
                             SetWindowText(output_textbox, result);
                             break;
                         }
@@ -362,6 +368,147 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 InvalidateRect(hWnd, NULL, TRUE);
                 UpdateWindow(hWnd);
                 break;
+            case ID_BUTTON3:
+                if (p_a_f <= 0 || t_a_f <= 0 || a_a_f <= 0) {
+                    MessageBox(hWnd, _T("No final adiabatic variables to add."), _T("Message"), MB_OK);
+                    break;
+                }
+                ps.push_back(p_a_f);
+                ts.push_back(t_a_f);
+                as.push_back(a_a_f);
+                updateValues(hWnd);
+                InvalidateRect(hWnd, NULL, TRUE);
+                UpdateWindow(hWnd);
+                break;
+            case ID_BUTTON4:
+                if (p_a <= 0 || t_a <= 0 || a_a <= 0) {
+                    MessageBox(hWnd, _T("No initial adiabatic variables to add."), _T("Message"), MB_OK);
+                    break;
+                }
+                ps.push_back(p_a);
+                ts.push_back(t_a);
+                as.push_back(a_a);
+                updateValues(hWnd);
+                InvalidateRect(hWnd, NULL, TRUE);
+                UpdateWindow(hWnd);
+                break;
+            case IDC_TEXT_INPUT2:
+                TCHAR pres[50];
+                TCHAR temp[50];
+                TCHAR volume[50];
+                GetWindowText(pres_input_a, pres, 50);
+                GetWindowText(temp_input_a, temp, 50);
+                GetWindowText(volume_input_a, volume, 50);
+                if (_tcslen(pres) <= 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
+                    t_a = std::stod(temp);
+                    a_a = std::stod(volume);
+
+                    p_a = Rd * t_a / a_a;
+                    _stprintf_s(result, 50, _T("%f"), p_a);
+                    break;
+                }
+                else if (_tcslen(pres) > 0 && _tcslen(temp) <= 0 && _tcslen(volume) > 0) {
+                    p_a = std::stod(pres);
+                    a_a = std::stod(volume);
+
+                    t_a = p_a * a_a / Rd;
+                    _stprintf_s(result, 50, _T("%f"), t_a);
+                    break;
+                }
+                else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) <= 0) {
+                    t_a = std::stod(temp);
+                    p_a = std::stod(pres);
+
+                    a_a = Rd * t_a / p_a;
+                    _stprintf_s(result, 50, _T("%f"), a_a);
+                    break;
+                } else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
+                    try {
+                        if (std::stod(pres) != p_a) {
+                            SetWindowText(pres_input_a, defaultResult);
+                            p_a = Rd * t_a / a_a;
+                        }
+                        if (std::stod(temp) != t_a) {
+                            SetWindowText(temp_input_a, defaultResult);
+                            t_a = p_a * a_a / Rd;
+                        }
+                        if (std::stod(volume) != a_a) {
+                            SetWindowText(volume_input_a, defaultResult);
+                            a_a = Rd * t_a / p_a;
+                        }
+                    } catch (std::invalid_argument e){}
+                    
+                }
+
+                break;
+            case IDC_TEXT_INPUT_PRES:
+                if (p_a == 0 || t_a == 0 || a_a == 0) {
+                    MessageBox(hWnd, _T("Please input at least 2 initial state variables."), _T("Message"), MB_OK);
+                    break;
+                }
+                TCHAR pres2[50];
+                GetWindowText(pres_input_a_f, pres2, 50);
+                if (_tcslen(pres2) > 0) {
+                    p_a_f = std::stod(pres2);
+                    t_a_f = t_a * pow(p_a_f / p_a, 1 - (1 / gamma));
+                    a_a_f = a_a * pow(p_a_f / p_a, -1 / gamma);
+                    output.clear();
+                    TCHAR adiabaticResult[256];
+                    oss << L"P=" << p_a_f << L" T=" << t_a_f << L" A=" << a_a_f;
+                    output += oss.str();
+                    oss.str(L"");
+                    _tcscpy_s(adiabaticResult, output.c_str());
+                    adiabaticResult[output.size()] = '\0';
+
+                    SetWindowText(adiabatic_f, adiabaticResult);
+                }                
+                break;
+            case IDC_TEXT_INPUT_TEMP:
+                if (p_a == 0 || t_a == 0 || a_a == 0) {
+                    MessageBox(hWnd, _T("Please input at least 2 initial state variables."), _T("Message"), MB_OK);
+                    break;
+                }
+                TCHAR temp2[50];
+                GetWindowText(temp_input_a_f, temp2, 50);
+                if (_tcslen(temp2) > 0) {
+                    t_a_f = std::stod(temp2);
+                    p_a_f = p_a * pow(t_a_f / t_a, gamma / (gamma - 1));
+                    a_a_f = a_a * pow(t_a_f / t_a, 1 / gamma);
+                    output.clear();
+                    TCHAR adiabaticResult[2048];
+                    oss << L"P=" << p_a_f << L" T=" << t_a_f << L" A=" << a_a_f << L" \r\n";
+                    output += oss.str();
+                    oss.str(L"");
+                    _tcscpy_s(adiabaticResult, output.c_str());
+                    adiabaticResult[output.size()] = '\0';
+
+                    SetWindowText(adiabatic_f, adiabaticResult);
+                }
+                break;
+            case IDC_TEXT_INPUT_VOL:
+                if (p_a == 0 || t_a == 0 || a_a == 0) {
+                    MessageBox(hWnd, _T("Please input at least 2 initial state variables."), _T("Message"), MB_OK);
+                    break;
+                }
+                TCHAR volume2[50];
+                GetWindowText(volume_input_a_f, volume2, 50);
+                if (_tcslen(volume2) > 0) {
+                    a_a_f = std::stod(volume2);
+                    p_a_f = p_a * pow(a_a_f / a_a, -gamma);
+                    t_a_f = t_a * pow(a_a_f / a_a, -gamma);
+                    output.clear();
+                    TCHAR adiabaticResult[2048];
+                    oss << L"P=" << p_a_f << L"  T=" << t_a_f << L"  A=" << a_a_f << L" \r\n";
+                    output += oss.str();
+                    oss.str(L"");
+                    _tcscpy_s(adiabaticResult, output.c_str());
+                    adiabaticResult[output.size()] = '\0';
+
+                    SetWindowText(adiabatic_f, adiabaticResult);
+                }
+                break;
+
+
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
@@ -385,6 +532,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             TextOut(hdc, 325, 210, _T("Efficiency:"), (int)_tcslen(_T("Efficiency:")));
             TextOut(hdc, 700, 210, _T("Total:"), (int)_tcslen(_T("Total:")));
             TextOut(hdc, 325, 290, _T("Carnot Efficiency:"), (int)_tcslen(_T("Carnot Efficiency:")));
+            TextOut(hdc, 700, 300, _T("Adiabatic Solver:"), (int)_tcslen(_T("Adiabatic Solver:")));
 
 
             hFont = CreateFont(18, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
@@ -396,9 +544,52 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             TextOut(hdc, 35, 80, _T("Temperature:"), (int)_tcslen(_T("Temperature:")));
             TextOut(hdc, 35, 110, _T("Specific Volume:"), (int)_tcslen(_T("Specific Volume:")));
 
+            hFont = CreateFont(22, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+                DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+                CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
+                DEFAULT_PITCH | FF_SWISS, _T("Arial"));
+            hOldFont = (HFONT)SelectObject(hdc, hFont);
+            TextOut(hdc, 710, 325, _T("Initial:"), (int)_tcslen(_T("Initial:")));
+            TextOut(hdc, 885, 325, _T("Final:"), (int)_tcslen(_T("Final:")));
+
+            hFont = CreateFont(18, 0, 0, 0, FW_NORMAL, FALSE, FALSE, FALSE,
+                DEFAULT_CHARSET, OUT_OUTLINE_PRECIS,
+                CLIP_DEFAULT_PRECIS, CLEARTYPE_QUALITY,
+                DEFAULT_PITCH | FF_SWISS, _T("Arial"));
+            hOldFont = (HFONT)SelectObject(hdc, hFont);
+            TextOut(hdc, 715, 355, _T("Pressure:"), (int)_tcslen(_T("Pressure:")));
+            TextOut(hdc, 715, 395, _T("Temperature:"), (int)_tcslen(_T("Temperature:")));
+            TextOut(hdc, 715, 435, _T("Specific Volume:"), (int)_tcslen(_T("Specific Volume:")));
+            TextOut(hdc, 890, 355, _T("Pressure:"), (int)_tcslen(_T("Pressure:")));
+            TextOut(hdc, 890, 395, _T("Temperature:"), (int)_tcslen(_T("Temperature:")));
+            TextOut(hdc, 890, 435, _T("Specific Volume:"), (int)_tcslen(_T("Specific Volume:")));
+
+            // Adiabatic Solver Divider
+            POINT divider[2];
+            divider[0].x = 875;
+            divider[0].y = 325;
+            divider[1].x = 875;
+            divider[1].y = 485;
+            Polyline(hdc, divider, 2);
+
+            // Adiabatic Solver Box
+            POINT box[5];
+            box[0].x = 695;
+            box[0].y = 295;
+            box[1].x = 695;
+            box[1].y = 515;
+            box[2].x = 1060;
+            box[2].y = 515;
+            box[3].x = 1060;
+            box[3].y = 295;
+            box[4].x = 695;
+            box[4].y = 295;
+            Polyline(hdc, box, 5);
+
+            // Graphing
             int xVmax = 270;
             int xVmin = 40;
-            int yVmin = 510;
+            int yVmin = 500;
             int yVmax = 260;
 
             POINT axis[3];
