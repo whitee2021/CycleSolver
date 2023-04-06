@@ -30,6 +30,7 @@ const double Rd = 287.052874;
 const double gamma = Cp / Cv;
 static vector<double> ps, ts, as, w, q, dU;
 static double wT = 0, qT = 0, dUT = 0, qin = 0;
+bool isFloat(TCHAR*);
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -304,6 +305,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                         GetWindowText(pres_input, pres, 50);
                         GetWindowText(temp_input, temp, 50);
                         GetWindowText(volume_input, volume, 50);
+
+                        if ((!isFloat(pres) && _tcslen(pres) > 0) || (!isFloat(temp) && _tcslen(temp) > 0) || (!isFloat(volume) && _tcslen(volume) > 0)) {
+                            MessageBox(hWnd, _T("Invalid input.\nPlease input a number."), _T("Message"), MB_OK);
+                            break;
+                        }
+
                         SetWindowText(output_textbox, defaultResult);
                         if (_tcslen(pres) <= 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
                             t = std::stod(temp);
@@ -393,122 +400,158 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
                 UpdateWindow(hWnd);
                 break;
             case IDC_TEXT_INPUT2:
-                TCHAR pres[50];
-                TCHAR temp[50];
-                TCHAR volume[50];
-                GetWindowText(pres_input_a, pres, 50);
-                GetWindowText(temp_input_a, temp, 50);
-                GetWindowText(volume_input_a, volume, 50);
-                if (_tcslen(pres) <= 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
-                    t_a = std::stod(temp);
-                    a_a = std::stod(volume);
+                switch (HIWORD(wParam))
+                {
+                    case EN_CHANGE:
+                        TCHAR pres[50];
+                        TCHAR temp[50];
+                        TCHAR volume[50];
+                        GetWindowText(pres_input_a, pres, 50);
+                        GetWindowText(temp_input_a, temp, 50);
+                        GetWindowText(volume_input_a, volume, 50);
+                        if ((!isFloat(pres) && _tcslen(pres) > 0) || (!isFloat(temp) && _tcslen(temp) > 0) || (!isFloat(volume) && _tcslen(volume) > 0)) {
+                            MessageBox(hWnd, _T("Invalid input.\nPlease input a number."), _T("Message"), MB_OK);
+                            break;
+                        }
 
-                    p_a = Rd * t_a / a_a;
-                    _stprintf_s(result, 50, _T("%f"), p_a);
-                    break;
-                }
-                else if (_tcslen(pres) > 0 && _tcslen(temp) <= 0 && _tcslen(volume) > 0) {
-                    p_a = std::stod(pres);
-                    a_a = std::stod(volume);
+                        if (_tcslen(pres) <= 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
+                            t_a = std::stod(temp);
+                            a_a = std::stod(volume);
 
-                    t_a = p_a * a_a / Rd;
-                    _stprintf_s(result, 50, _T("%f"), t_a);
-                    break;
-                }
-                else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) <= 0) {
-                    t_a = std::stod(temp);
-                    p_a = std::stod(pres);
-
-                    a_a = Rd * t_a / p_a;
-                    _stprintf_s(result, 50, _T("%f"), a_a);
-                    break;
-                } else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
-                    try {
-                        if (std::stod(pres) != p_a) {
-                            SetWindowText(pres_input_a, defaultResult);
                             p_a = Rd * t_a / a_a;
+                            _stprintf_s(result, 50, _T("%f"), p_a);
+                            break;
                         }
-                        if (std::stod(temp) != t_a) {
-                            SetWindowText(temp_input_a, defaultResult);
-                            t_a = p_a * a_a / Rd;
-                        }
-                        if (std::stod(volume) != a_a) {
-                            SetWindowText(volume_input_a, defaultResult);
-                            a_a = Rd * t_a / p_a;
-                        }
-                    } catch (std::invalid_argument e){}
-                    
-                }
+                        else if (_tcslen(pres) > 0 && _tcslen(temp) <= 0 && _tcslen(volume) > 0) {
+                            p_a = std::stod(pres);
+                            a_a = std::stod(volume);
 
+                            t_a = p_a * a_a / Rd;
+                            _stprintf_s(result, 50, _T("%f"), t_a);
+                            break;
+                        }
+                        else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) <= 0) {
+                            t_a = std::stod(temp);
+                            p_a = std::stod(pres);
+
+                            a_a = Rd * t_a / p_a;
+                            _stprintf_s(result, 50, _T("%f"), a_a);
+                            break;
+                        }
+                        else if (_tcslen(pres) > 0 && _tcslen(temp) > 0 && _tcslen(volume) > 0) {
+                            try {
+                                if (std::stod(pres) != p_a) {
+                                    SetWindowText(pres_input_a, defaultResult);
+                                    p_a = Rd * t_a / a_a;
+                                }
+                                if (std::stod(temp) != t_a) {
+                                    SetWindowText(temp_input_a, defaultResult);
+                                    t_a = p_a * a_a / Rd;
+                                }
+                                if (std::stod(volume) != a_a) {
+                                    SetWindowText(volume_input_a, defaultResult);
+                                    a_a = Rd * t_a / p_a;
+                                }
+                            }
+                            catch (std::invalid_argument e) {}
+
+                        }
+                        break;
+                }
                 break;
             case IDC_TEXT_INPUT_PRES:
-                if (p_a == 0 || t_a == 0 || a_a == 0) {
-                    MessageBox(hWnd, _T("Please input at least 2 initial state variables."), _T("Message"), MB_OK);
-                    break;
-                }
-                TCHAR pres2[50];
-                GetWindowText(pres_input_a_f, pres2, 50);
-                if (_tcslen(pres2) > 0) {
-                    p_a_f = std::stod(pres2);
-                    t_a_f = t_a * pow(p_a_f / p_a, 1 - (1 / gamma));
-                    a_a_f = a_a * pow(p_a_f / p_a, -1 / gamma);
-                    output.clear();
-                    TCHAR adiabaticResult[256];
-                    oss << L"P=" << p_a_f << L" T=" << t_a_f << L" A=" << a_a_f;
-                    output += oss.str();
-                    oss.str(L"");
-                    _tcscpy_s(adiabaticResult, output.c_str());
-                    adiabaticResult[output.size()] = '\0';
+                switch (HIWORD(wParam))
+                {
+                    case EN_CHANGE:
+                        if (p_a == 0 || t_a == 0 || a_a == 0) {
+                            MessageBox(hWnd, _T("Please input at least 2 initial state variables."), _T("Message"), MB_OK);
+                            break;
+                        }
+                        TCHAR pres2[50];
+                        GetWindowText(pres_input_a_f, pres2, 50);
+                        if (!isFloat(pres2) && _tcslen(pres2) > 0) {
+                            MessageBox(hWnd, _T("Invalid input.\nPlease input a number."), _T("Message"), MB_OK);
+                            break;
+                        }
+                        if (_tcslen(pres2) > 0) {
+                            p_a_f = std::stod(pres2);
+                            t_a_f = t_a * pow(p_a_f / p_a, 1 - (1 / gamma));
+                            a_a_f = a_a * pow(p_a_f / p_a, -1 / gamma);
+                            output.clear();
+                            TCHAR adiabaticResult[256];
+                            oss << L"P=" << p_a_f << L" T=" << t_a_f << L" A=" << a_a_f;
+                            output += oss.str();
+                            oss.str(L"");
+                            _tcscpy_s(adiabaticResult, output.c_str());
+                            adiabaticResult[output.size()] = '\0';
 
-                    SetWindowText(adiabatic_f, adiabaticResult);
-                }                
+                            SetWindowText(adiabatic_f, adiabaticResult);
+                        }
+                        break;
+                }
                 break;
             case IDC_TEXT_INPUT_TEMP:
-                if (p_a == 0 || t_a == 0 || a_a == 0) {
-                    MessageBox(hWnd, _T("Please input at least 2 initial state variables."), _T("Message"), MB_OK);
-                    break;
-                }
-                TCHAR temp2[50];
-                GetWindowText(temp_input_a_f, temp2, 50);
-                if (_tcslen(temp2) > 0) {
-                    t_a_f = std::stod(temp2);
-                    p_a_f = p_a * pow(t_a_f / t_a, gamma / (gamma - 1));
-                    a_a_f = a_a * pow(t_a_f / t_a, 1 / gamma);
-                    output.clear();
-                    TCHAR adiabaticResult[2048];
-                    oss << L"P=" << p_a_f << L" T=" << t_a_f << L" A=" << a_a_f << L" \r\n";
-                    output += oss.str();
-                    oss.str(L"");
-                    _tcscpy_s(adiabaticResult, output.c_str());
-                    adiabaticResult[output.size()] = '\0';
+                switch (HIWORD(wParam))
+                {
+                    case EN_CHANGE:
+                        if (p_a == 0 || t_a == 0 || a_a == 0) {
+                            MessageBox(hWnd, _T("Please input at least 2 initial state variables."), _T("Message"), MB_OK);
+                            break;
+                        }
+                        TCHAR temp2[50];
+                        GetWindowText(temp_input_a_f, temp2, 50);
+                        if (!isFloat(temp2) && _tcslen(temp2) > 0) {
+                            MessageBox(hWnd, _T("Invalid input.\nPlease input a number."), _T("Message"), MB_OK);
+                            break;
+                        }
+                        if (_tcslen(temp2) > 0) {
+                            t_a_f = std::stod(temp2);
+                            p_a_f = p_a * pow(t_a_f / t_a, gamma / (gamma - 1));
+                            a_a_f = a_a * pow(t_a_f / t_a, 1 / gamma);
+                            output.clear();
+                            TCHAR adiabaticResult[2048];
+                            oss << L"P=" << p_a_f << L" T=" << t_a_f << L" A=" << a_a_f << L" \r\n";
+                            output += oss.str();
+                            oss.str(L"");
+                            _tcscpy_s(adiabaticResult, output.c_str());
+                            adiabaticResult[output.size()] = '\0';
 
-                    SetWindowText(adiabatic_f, adiabaticResult);
+                            SetWindowText(adiabatic_f, adiabaticResult);
+                        }
+                        break;
                 }
                 break;
             case IDC_TEXT_INPUT_VOL:
-                if (p_a == 0 || t_a == 0 || a_a == 0) {
-                    MessageBox(hWnd, _T("Please input at least 2 initial state variables."), _T("Message"), MB_OK);
-                    break;
-                }
-                TCHAR volume2[50];
-                GetWindowText(volume_input_a_f, volume2, 50);
-                if (_tcslen(volume2) > 0) {
-                    a_a_f = std::stod(volume2);
-                    p_a_f = p_a * pow(a_a_f / a_a, -gamma);
-                    t_a_f = t_a * pow(a_a_f / a_a, -gamma);
-                    output.clear();
-                    TCHAR adiabaticResult[2048];
-                    oss << L"P=" << p_a_f << L"  T=" << t_a_f << L"  A=" << a_a_f << L" \r\n";
-                    output += oss.str();
-                    oss.str(L"");
-                    _tcscpy_s(adiabaticResult, output.c_str());
-                    adiabaticResult[output.size()] = '\0';
+                switch (HIWORD(wParam))
+                {
+                    case EN_CHANGE:
+                        if (p_a == 0 || t_a == 0 || a_a == 0) {
+                            MessageBox(hWnd, _T("Please input at least 2 initial state variables."), _T("Message"), MB_OK);
+                            break;
+                        }
+                        TCHAR volume2[50];
+                        GetWindowText(volume_input_a_f, volume2, 50);
+                        if (!isFloat(volume2) && _tcslen(volume2) > 0) {
+                            MessageBox(hWnd, _T("Invalid input.\nPlease input a number."), _T("Message"), MB_OK);
+                            break;
+                        }
+                        if (_tcslen(volume2) > 0) {
+                            a_a_f = std::stod(volume2);
+                            p_a_f = p_a * pow(a_a_f / a_a, -gamma);
+                            t_a_f = t_a * pow(a_a_f / a_a, -gamma);
+                            output.clear();
+                            TCHAR adiabaticResult[2048];
+                            oss << L"P=" << p_a_f << L"  T=" << t_a_f << L"  A=" << a_a_f << L" \r\n";
+                            output += oss.str();
+                            oss.str(L"");
+                            _tcscpy_s(adiabaticResult, output.c_str());
+                            adiabaticResult[output.size()] = '\0';
 
-                    SetWindowText(adiabatic_f, adiabaticResult);
+                            SetWindowText(adiabatic_f, adiabaticResult);
+                        }
+                        break;
                 }
                 break;
-
-
             default:
                 return DefWindowProc(hWnd, message, wParam, lParam);
             }
@@ -677,4 +720,13 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+bool isFloat(TCHAR* st) {
+    try {
+        std::stod(st);
+        return true;
+    } catch (std::invalid_argument e) {
+        return false;
+    }
 }
