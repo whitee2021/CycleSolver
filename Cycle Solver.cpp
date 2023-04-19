@@ -161,7 +161,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         output.clear();
         for (int i = 0; i < ps.size();i++) {
-            oss << (i + 1) << L": P=" << ps[i] << L" T=" << ts[i] << L" A=" << as[i] << L" \r\n";
+            oss << (i + 1) << L": P=" << ps[i] << L" T=" << ts[i] << L" a=" << as[i] << L" \r\n";
             output += oss.str();
             oss.str(L"");
 
